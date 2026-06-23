@@ -10,7 +10,7 @@ routes = [
 ]
 
 [placement]
-region = "aws:ap-east-1"
+mode = "smart"
 
 [observability]
 enabled = false
