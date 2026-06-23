@@ -1,0 +1,44 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # 每天 UTC 02:00 自动同步
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout fork main branch
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/xixu-me/xget.git || true
+          git fetch upstream main
+
+      - name: Merge upstream/main
+        run: |
+          git merge upstream/main --no-edit -m "chore: sync upstream xixu-me/xget"
+
+      - name: Push to origin main
+        run: |
+          git push origin main
