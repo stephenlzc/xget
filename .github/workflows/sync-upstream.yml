@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      actions: write
 
     steps:
       - name: Checkout fork main branch
@@ -42,3 +43,9 @@ jobs:
       - name: Push to origin main
         run: |
           git push origin main
+
+      - name: Trigger Deploy to Cloudflare Workers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run workers.yml -R ${{ github.repository }}
